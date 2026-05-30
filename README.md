@@ -34,7 +34,6 @@ python main.py --camera 0 --display 0 --fourcc MJPG
 ```
 
 ## 说明
-
 `vision.rect_detect.detect_rectangles()` 返回按面积从大到小排序的矩形列表；`main.py` 默认取第 1 个作为 `best`。
 
 ## 追踪控制（PID）
@@ -63,6 +62,6 @@ python main.py --camera 0 --display 1 --serial-port /dev/ttyS1 --serial-baud 115
 
 ```powershell
 cd /home/sunrise/projects/QGimbal-Vision
-python3 main.py --camera 0 --serial-port /dev/ttyS1 --serial-baud 115200
+python3 main.py --camera 0 --display 0 --serial-port /dev/ttyS1 --serial-baud 115200
 ```
 补充：现在上位机默认只“启动云台控制”，不会默认开自稳和激光。需要的话可以在 serial.open() 后调用 serial.enable_stability()、serial.enable_laser()。
