@@ -56,13 +56,13 @@ python main.py --camera 0 --display 0 --fourcc MJPG
 启用控制输出（默认已启用），并设置最大输出 rpm / 死区：
 
 ```powershell
-python main.py --camera 0 --display 1 --control 1 --max-rpm 120 --deadband-px 6
+python main.py --camera 0 --display 1 --serial-port /dev/ttyS1 --serial-baud 115200 --max-rpm 120 --deadband-px 6
 ```
 
 无窗口模式查看控制输出：
 
 ```powershell
-python main.py --camera 0 --display 0 --control 1 --print-interval 0.1
+cd /home/sunrise/projects/QGimbal-Vision
+python3 main.py --camera 0 --serial-port /dev/ttyS1 --serial-baud 115200
 ```
-
-> 注意：当前 `send_rpm()` 会按 `control/serial_stub.py` 中定义的协议发送二进制包；如果 STM32 端协议变了，只需要同步这里的字段顺序和校验方式。
+补充：现在上位机默认只“启动云台控制”，不会默认开自稳和激光。需要的话可以在 serial.open() 后调用 serial.enable_stability()、serial.enable_laser()。
