@@ -1,0 +1,34 @@
+import struct
+
+from control.serial_stub import GimbalSerialStub
+
+
+def test_build_packet_layout_and_checksum() -> None:
+    stub = GimbalSerialStub(port=None)
+    stub.laser_enabled = 1
+    stub.enabled = 2
+    stub.stability_enabled = 3
+
+    packet = stub.build_packet(12.5, -7.25)
+
+    assert len(packet) == 12
+    assert struct.unpack('<ff', packet[:8]) == (12.5, -7.25)
+    assert packet[8:11] == bytes([1, 2, 3])
+    assert packet[-1] == (sum(packet[:-1]) & 0xFF)
+
+
+def test_send_rpm_writes_built_packet() -> None:
+    class FakeSerial:
+        def __init__(self) -> None:
+            self.writes: list[bytes] = []
+
+        def write(self, data: bytes) -> None:
+            self.writes.append(bytes(data))
+
+    stub = GimbalSerialStub(port=None)
+    fake_serial = FakeSerial()
+    stub._ser = fake_serial
+
+    stub.send_rpm(1.5, 2.5)
+
+    assert fake_serial.writes == [stub.build_packet(1.5, 2.5)]

@@ -62,7 +62,7 @@ def parse_args():
 
     # 串口相关（协议在 control/serial_stub.py 内实现）
     p.add_argument('--serial-port', type=str, default='/dev/ttyS1', help='串口端口号，例如 /dev/ttyS1；默认 /dev/ttyS1')
-    p.add_argument('--serial-baud', type=int, default=115200, help='串口波特率（默认 115200）')
+    p.add_argument('--serial-baud', type=int, default=1152000, help='串口波特率（默认 1152000）')
 
     return p.parse_args()
 
@@ -112,7 +112,6 @@ def main():
     last_print = 0.0
     prev_time = time.time()
     fps = 0.0
-    laser_on = False
 
     try:
         while True:
@@ -138,16 +137,6 @@ def main():
             # PID 控制：将目标中心追踪到屏幕中心，输出 yaw/pitch rpm
             h, w = frame.shape[:2]
             target_center = best.center if best is not None else None
-
-            # 检测到矩形时打开激光，丢失矩形时关闭激光；只在状态变化时发命令。
-            target_visible = target_center is not None
-            if target_visible and not laser_on:
-                serial.enable_laser()
-                laser_on = True
-            elif not target_visible and laser_on:
-                serial.disable_laser()
-                laser_on = False
-
             ret, ctrl_out = tracker.update(frame_w=w, frame_h=h, target_center=target_center, dt=max(dt, 1e-6), now=now)
             if ret:
                 serial.send_rpm(ctrl_out.yaw_rpm, ctrl_out.pitch_rpm)
@@ -192,8 +181,6 @@ def main():
     except KeyboardInterrupt:
         print('\n收到中断，退出...')
     finally:
-        if laser_on:
-            serial.disable_laser()
         cap.release()
         serial.close()
         if display:

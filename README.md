@@ -27,6 +27,12 @@ python main.py --camera 0 --display 1
 python main.py --camera 0 --display 0 --print-interval 0.5
 ```
 
+如果摄像头支持高帧率 MJPG，可以显式指定：
+
+```powershell
+python main.py --camera 0 --display 0 --fourcc MJPG
+```
+
 ## 说明
 
 `vision.rect_detect.detect_rectangles()` 返回按面积从大到小排序的矩形列表；`main.py` 默认取第 1 个作为 `best`。
@@ -37,7 +43,7 @@ python main.py --camera 0 --display 0 --print-interval 0.5
 
 - `control/pid.py`：基础 PID（积分限幅/输出限幅）
 - `control/tracker_control.py`：将图像误差映射为 `yaw_rpm/pitch_rpm`
-- `control/serial_stub.py`：串口发送 stub（目前 no-op，协议部分你后续补上）
+- `control/serial_stub.py`：串口发送模块（负责按约定协议打包并发送 RPM 命令）
 
 ### 坐标系约定
 
@@ -59,4 +65,4 @@ python main.py --camera 0 --display 1 --control 1 --max-rpm 120 --deadband-px 6
 python main.py --camera 0 --display 0 --control 1 --print-interval 0.1
 ```
 
-> 注意：当前 `send_rpm()` 是空实现，不会实际控制云台。你把协议写好后，只需要替换 `control/serial_stub.py` 中的发送逻辑。
+> 注意：当前 `send_rpm()` 会按 `control/serial_stub.py` 中定义的协议发送二进制包；如果 STM32 端协议变了，只需要同步这里的字段顺序和校验方式。
